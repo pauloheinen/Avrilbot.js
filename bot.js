@@ -4,7 +4,6 @@ const Token = 'ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw';
 const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
 const youtube = require('simple-youtube-api');
-const music = require('discord.js-music-v11');
 
 const filamusica = [];
 // playlist do youtube: https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_
@@ -30,6 +29,7 @@ bot.on('ready', () => { // when the bot is on
 /* Start of message events */
 bot.on('message', msg => {
     const m = msg.content.toLowerCase(); // m = message content in lower case
+    var idvoice = msg.member.voiceChannel; // idvoice = the info about channel that the msg sender is
     if (msg.author.bot) return; // if the message is from another bot
     if (msg.channel.type === 'dm') return; // if is a DirectMessage
     if (m === '!avril')
@@ -39,19 +39,30 @@ bot.on('message', msg => {
     if (m === '!gata')
         return msg.channel.send('gata gorda 🙀');
     if (m === '!justdoit' || m === '!jdi') {
-        var idvoice = msg.member.voiceChannel; // idvoice = the info about channel that the msg sender is
-        console.log(idvoice); // print out on console
         if (idvoice != null){ // if is in a voice channel
-            idvoice.join(); // bot join
-            console.log("Bot joined at:" + idvoice);
-            return msg.channel.send("Let's do it!");
+            idvoice.join().then(connection =>{
+                const stream = ytdl('https://www.youtube.com/watch?v=LOcKckBLouM&list=PLOfcxmVI3iUASS5tHevLxLfGq3lZJYrNh&ab_channel=AvrilLavigneVEVO');
+                connection.playStream(stream);
+            }); // bot join
+            console.log("Bot joined at: "+idvoice.name+" in: "+idvoice.guild.name);
+            msg.channel.send("Let's do it!");
+
         }
         else {
             return msg.channel.send("Não ta no canal de voz né pô, faz certo, faz direito!");
         }
     }
+    if (m === '!justvitao'){
+        if (idvoice != null){
+            idvoice.join().then(connection =>{
+                const stream = ytdl('https://www.youtube.com/watch?v=5NPBIwQyPWE&list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_&index=1&ab_channel=AvrilLavigneVEVO');
+                idvoice.join();
+                connection.playArbitraryInput(stream);
+            })
+        }
+    }
     if (m === '!comandos')
-        return msg.channel.send('!avril\n!botfdp\n!gata\n!justdoit or !jdi\n😘😘😜');
+        return msg.channel.send('!avril\n!botfdp\n!gata\n!justdoit or !jdi\n!justvitao\n😘😘😜\n');
 });
 /* end of message events */
 
@@ -59,11 +70,9 @@ bot.on('message', msg => {
 /* start of voice state event */
 bot.on("voiceStateUpdate", (oldMember, newMember) => {
     if (newMember.voiceChannelID === '883096070857556009') { // if some member enters in voice channel with that id
-        var loginvoice = newMember.voiceChannel.join().then(connection => {
-            const stream = ytdl('https://www.youtube.com/watch?v=0-zDFLbWK1Q&list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_&index=2&ab_channel=AvrilLavigneVEVO');
-            const dispatcher = connection.playStream(stream);
-
-            dispatcher.on('finish', () => voiceChannel.leave());
+        newMember.voiceChannel.join().then(connection => {
+            const stream = ytdl('https://www.youtube.com/watch?v=LOcKckBLouM&list=PLOfcxmVI3iUASS5tHevLxLfGq3lZJYrNh&ab_channel=AvrilLavigneVEVO');
+            connection.playArbitraryInput(stream);
         });
         console.log(newMember.user.username+" Entrou no canal Avril 24/7");
     }
