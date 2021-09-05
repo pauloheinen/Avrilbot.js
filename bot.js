@@ -2,14 +2,17 @@ const {Client} = require('discord.js');
 const bot = new Client();
 const Token = 'ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw';
 const ytdl = require('ytdl-core');
+const ytpl = require('ytpl');
 const youtube = require('simple-youtube-api');
-const disclibrary = require ('discord.js');
+const music = require('discord.js-music-v11');
+
 const filamusica = [];
 // playlist do youtube: https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_
 // token ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw
 
 
 var http = require('http');
+const stream = require("stream");
 http.createServer(function (req, res) {
     res.write("I'm alive");
     res.end();
@@ -56,14 +59,20 @@ bot.on('message', msg => {
 /* start of voice state event */
 bot.on("voiceStateUpdate", (oldMember, newMember) => {
     if (newMember.voiceChannelID === '883096070857556009') { // if some member enters in voice channel with that id
-        var loginvoice = newMember.voiceChannel.join();
+        var loginvoice = newMember.voiceChannel.join().then(connection => {
+            const stream = ytdl('https://www.youtube.com/watch?v=0-zDFLbWK1Q&list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_&index=2&ab_channel=AvrilLavigneVEVO');
+            const dispatcher = connection.playStream(stream);
+
+            dispatcher.on('finish', () => voiceChannel.leave());
+        });
         console.log(newMember.user.username+" Entrou no canal Avril 24/7");
-        bot.voiceConnections.get(loginvoice);
     }
     if (oldMember.voiceChannelID === '883096070857556009') // if some member leave that same voice channel
         console.log(oldMember.user.username+" Saiu do canal Avril 24/7");
 })
 /* end of voice state event */
+
+
 
 
 
