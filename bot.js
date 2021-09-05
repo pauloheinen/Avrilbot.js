@@ -1,5 +1,5 @@
-const { Client, Intents } = require('discord.js');
-const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const { Client, Intents, ThreadChannel} = require('discord.js');
+const bot = new Client();
 const Token = 'ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw';
 const ytdl = require('ytdl-core');
 const disclibrary = require ('discord.js');
@@ -25,28 +25,30 @@ bot.on('ready', () => {
 
 
 // messages
-bot.on('messageCreate', async msg => {
+bot.on('message', async msg => {
+    const m = msg.content.toLowerCase();
     if (msg.author.bot) return;
     if (msg.channel.type === "dm") return;
-    if (msg.content.toLowerCase() === '!avril')
-        return msg.reply('Hey Hey You You');
-    else if (msg.content.toLowerCase() === '!botfdp')
+    if (m === '!avril')
+        return msg.channel.send('Hey Hey You You');
+    else if (m === '!botfdp')
         return msg.reply("fdp é teu pai, aquele corno")
-    else if (msg.content.toLowerCase() === '!gata')
-        return msg.reply('gata gorda 🙀')
-    else if (msg.content.toLowerCase() === 'k'){
-        console.log("K pressed!");
-            bot.channels.cache.map(value => '883848352930865156').join();
-            //bot.channels.fetch('883848352930865156');
+    else if (m === '!gata')
+        return msg.channel.send('gata gorda 🙀')
+    else if (m === 'k'){
+        // FINALKMENTE CONSIGO SETTAR O BOT EM UM CANAL
+        var idvoice = msg.member.voiceChannel;
+        idvoice.join();
+        // GUARDAR O CÓDIGO COMO SE FOSSE A VIRGINDADE
+        console.log(idvoice);
+        return msg.channel.send("foda");
 
     }
+    else if (m === 'j') {
+
+    }
+
 });
-
-bot.on('voiceStateUpdate', voice =>{
-    voice.channel.
-})
-
-
 
 
 bot.login(Token);
