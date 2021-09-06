@@ -1,33 +1,24 @@
+/* Tokens */
+const Token = 'ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw';
+const Ytoken = 'AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU';
+/* ***************************************************** */
+
+
 const {Client} = require('discord.js');
 const bot = new Client();
-const Token = 'ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw';
-const YToekn = 'AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU';
+const YouTube = require('simple-youtube-api');
+const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
+
 //https://developers.google.com/youtube/v3/getting-started
-const ytdl = require('ytdl-core');
-const ytpl = require('ytpl');
-const youtube = require('simple-youtube-api');
-const yt = require("discord-youtube-api");
-const teste = require("https://www.googleapis.com/youtube/v3");
 
-const youtube = new YouTube("google api key");
-
-async function testAll() {
-    const video1 = await youtube.getVideo("https://www.youtube.com/watch?v=5NPBIwQyPWE");
-    const video2 = await youtube.getVideoByID("5NPBIwQyPWE");
-    const video3 = await youtube.searchVideos("big poppa biggie smalls");
-    const videoArray1 = await youtube.getPlaylist("https://www.youtube.com/playlist?list=PLxyf3paml4dNMlJURcEOND0StDN1Q4yWz");
-    const videoArray2 = await youtube.getPlaylistByID("PLxyf3paml4dNMlJURcEOND0StDN1Q4yWz");
-
-    console.log(video1, video2, video3, videoArray1, videoArray2);
-}
-
-const filamusica = [];
 // playlist do youtube: https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_
 // token ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw
+/* for playing music */
+var filamusica = []; // a queue of musics
+const stream = require("stream"); // to streaming in voice channel
 
 
 var http = require('http');
-const stream = require("stream");
 http.createServer(function (req, res) {
     res.write("I'm alive");
     res.end();
@@ -79,14 +70,19 @@ bot.on('message', msg => {
     }
     if (m === 't'){
         if (idvoice != null){
-            idvoice.join().then(connection =>{
-                const stream = ytdl('https://www.youtube.com/watch?v=5NPBIwQyPWE&list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_&index=1&ab_channel=AvrilLavigneVEVO');
-                let x = ytpl.getPlaylistID('https://www.youtube.com/watch?v=5NPBIwQyPWE&list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_&index=1&ab_channel=AvrilLavigneVEVO');
+            idvoice.join()
+                .then(connection =>{
+                youtube.getPlaylist('https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_')
+                    .then(playlist =>{
+                     playlist.getVideos()
+                         .then(videos =>{
+                             for (let i = 0; i < videos.length; i++) {
+                                 console.log(videos[i].url);
 
-                console.log(x);
-
-                idvoice.join();
-                connection.playArbitraryInput(stream);
+                             }
+                         })
+                    })
+                    .catch(console.log);
             })
         }
 
@@ -110,8 +106,6 @@ bot.on("voiceStateUpdate", (oldMember, newMember) => {
         console.log(oldMember.user.username+" Saiu do canal Avril 24/7");
 })
 /* end of voice state event */
-
-
 
 
 
