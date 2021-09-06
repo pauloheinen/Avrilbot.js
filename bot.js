@@ -1,10 +1,12 @@
 const {Client} = require('discord.js');
 const bot = new Client();
 const Token = 'ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw';
+const YToekn = 'AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU';
 const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
 const youtube = require('simple-youtube-api');
 const yt = require("discord-youtube-api");
+const teste = require("https://www.googleapis.com/youtube/v3");
 
 const youtube = new YouTube("google api key");
 
