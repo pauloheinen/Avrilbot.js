@@ -2,6 +2,7 @@ const {Client} = require('discord.js');
 const bot = new Client();
 const Token = 'ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw';
 const YToekn = 'AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU';
+//https://developers.google.com/youtube/v3/getting-started
 const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
 const youtube = require('simple-youtube-api');
