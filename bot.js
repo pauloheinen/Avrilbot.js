@@ -9,6 +9,7 @@ const bot = new Client();
 const YouTube = require('simple-youtube-api');
 const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
 const ytdl = require('ytdl-core');
+const discbot = require('discord.js-music-v11');
 
 // playlist do youtube: https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_
 // token ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw
@@ -18,6 +19,10 @@ const ytdl = require('ytdl-core');
 
 var http = require('http');
 const ytpl = require("ytpl");
+const buffer = require("buffer");
+const {createAdapter} = require("discordaudio/adapter");
+const stream = require("stream");
+const use = require("discordaudio");
 http.createServer(function (req, res) {
     res.write("I'm alive");
     res.end();
@@ -83,7 +88,6 @@ bot.on("voiceStateUpdate", (oldMember, newMember) => {
 
 
 function playmusic(idvoice){
-    let filamusica = []; // a queue of musics
     idvoice.join()
         .then(connection =>{
             youtube.getPlaylist('https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_')
@@ -92,16 +96,16 @@ function playmusic(idvoice){
                         .then(videos =>{
                             for (let i = 0; i < videos.length; i++) {
                                 console.log("MUSICA[" + i + "]   URL =>>> " + videos[i].url);
+                                /* here i need to play a song */
+                                let dispatcher = connection.playStream(ytdl(videos[2].url));
 
                             }
                         })
                 })
-                .catch(console.log);
         })
-
 }
 
 //const dispatcher = connection.playStream(filamusica[0]);
 
-
+discbot(bot);
 bot.login(Token);
