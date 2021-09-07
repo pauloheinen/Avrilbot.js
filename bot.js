@@ -1,28 +1,12 @@
-/* Tokens */
-const Token = 'ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw';
-const Ytoken = 'AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU';
-/* ***************************************************** */
-
-
 const {Client} = require('discord.js');
 const bot = new Client();
 const YouTube = require('simple-youtube-api');
 const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
 const ytdl = require('ytdl-core');
-const discbot = require('discord.js-music-v11');
+const fs = require('fs');
 
-// playlist do youtube: https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_
-// token ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw
-/* for playing music */
+const http = require('http');
 
-
-
-var http = require('http');
-const ytpl = require("ytpl");
-const buffer = require("buffer");
-const {createAdapter} = require("discordaudio/adapter");
-const stream = require("stream");
-const use = require("discordaudio");
 http.createServer(function (req, res) {
     res.write("I'm alive");
     res.end();
@@ -30,7 +14,6 @@ http.createServer(function (req, res) {
 
 bot.on('ready', () => { // when the bot is on
     console.log('Bot Alive!')
-    let activities = 'Playing Avril Lavigne song, as always!'
     setInterval(() => bot.user.setActivity(`Avril Lavigne`, {
         type: "LISTENING",
         url: "https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_"
@@ -42,7 +25,7 @@ bot.on('message', msg => {
     const m = msg.content.toLowerCase(); // m = message content in lower case
     let idvoice = msg.member.voiceChannel; // idvoice = the info about channel that the msg sender is
 
-    if (msg.author.bot) return; // if the message is from another bot
+    if (msg.author.bot) return;  // if the message is from another bot
     else if (msg.channel.type !== 'text') return; // if isn a text message
     else if (m === '!avril')
         return msg.channel.send('Hey Hey You You');
@@ -52,8 +35,7 @@ bot.on('message', msg => {
         return msg.channel.send('gata gorda 🙀');
     else if (m === '!justdoit' || m === '!jdi' || m === '!justvitao' || m === 't'){
         if (idvoice != null) { // if is in a voice channel
-            msg.channel.send("Let's do it!");
-            return playmusic(idvoice);
+            return msg.channel.send("Let's do it!").then(playmusic(idvoice));
         }
         else
             return msg.channel.send("Não ta no canal de voz né pô, faz certo, faz direito!");
@@ -97,15 +79,20 @@ function playmusic(idvoice){
                             for (let i = 0; i < videos.length; i++) {
                                 console.log("MUSICA[" + i + "]   URL =>>> " + videos[i].url);
                                 /* here i need to play a song */
-                                let dispatcher = connection.playStream(ytdl(videos[2].url));
-
+                                const stream = downloader.download(videos[5].url);
+                                stream.pipe(fs.createWriteStream("./song.mp3"));
+                                let dispatcher = connection.playStream("./song.mp3");
+                                dispatcher.on('error', e => {
+                                    console.log(e);
+                                });
+                                dispatcher.on('end', e =>{
+                                    dispatcher = undefined;
+                                    console.log('End of audio file');
+                                })
                             }
                         })
                 })
         })
 }
 
-//const dispatcher = connection.playStream(filamusica[0]);
-
-discbot(bot);
-bot.login(Token);
+bot.login('ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw');
