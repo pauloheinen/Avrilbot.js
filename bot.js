@@ -4,6 +4,15 @@ const YouTube = require('simple-youtube-api');
 const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
 const ytdl = require('ytdl-core');
 const fs = require('fs');
+const downloader = require("@discord-player/downloader").Downloader;
+
+/*
+https://www.npmjs.com/package/discord-music-app
+https://www.npmjs.com/package/youtu-playlist-downloader
+https://www.npmjs.com/package/youtube-playlist-dl
+https://www.npmjs.com/package/@twometer/blaze
+ */
+
 
 const http = require('http');
 
