@@ -19,7 +19,7 @@ const http = require('http');
 http.createServer(function (req, res) {
     res.write("I'm alive");
     res.end();
-}).listen(80);
+}).listen(8000);
 
 bot.on('ready', () => { // when the bot is on
     console.log('Bot Alive!')
