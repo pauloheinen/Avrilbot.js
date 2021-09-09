@@ -6,6 +6,7 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const downloader = require("@discord-player/downloader").Downloader;
 let radioON = false;
+const LOCAL = './Music/';
 
 /*
 https://www.npmjs.com/package/discord-music-app
@@ -97,39 +98,38 @@ function playmusic(idvoice){
 }
 
 function verifystorage(videos){
-    for (let i = 0; i < videos.length; i++) {
-        let local = "./Music/";
-        fs.readdir(local, (err, arquivos) => {
-            arquivos.forEach(arquivo => {
-                if (arquivo.localeCompare(videos[i].title+".mp3") === 0) {
-                    console.log("Arquivo existente: " + arquivo);
-                    i+=1;
+    fs.readdir(LOCAL, ((err, files) => { // where to search for
+        for (let i = 0; i < videos.length; i++) { // array of youtube files
+            for (let j = 0; j < files.length; j++) { // array of local files
+                if (videos[i].title+".mp3" === files[j]) {
+                    console.log("Already has: " + videos[i].title + ".mp3");
+                    break;
                 }
-                else {
-                    console.log("Arquivo em falta: " + arquivo);
-                    const stream = downloader.download(videos[i].url);
-                    stream.pipe(fs.createWriteStream("./Music/" + videos[i].title + ".mp3"));
+                if (j === files.length-1){
+                    console.log("Downloading: "+videos[i].title+".mp3");
                 }
-            });
-        });
-    }
+            }
+        }
+    }));
 }
 
 
-function stream(connection, videos, index){
-    if (index < videos.length){
+async function stream(connection, videos, index){
+    fs.readdir(LOCAL, ((err, files) => {
+        if (index < videos.length) {
 
-        let dispatcher = connection.playStream("./Music/"+videos[index].title+".mp3");
-        dispatcher.on('error', e => {
-            console.log(e);
-        });
-        dispatcher.on('end', ()=>{
-            dispatcher = undefined;
-            console.log('Now playing:'+videos[index].title);
-            stream(connection, videos, index+=1);
-        })
+            let dispatcher = await connection.playStream(LOCAL + videos[index].title + ".mp3");
+            await dispatcher.on('error', e => {
+                console.log(e);
+            });
+            await dispatcher.on('end', () => {
+                dispatcher = undefined;
+                console.log('Now playing:' + videos[index].title);
+                stream(connection, videos, index += 1);
+            })
 
-    }
+        }
+    }));
 }
 
 bot.login('ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw');
