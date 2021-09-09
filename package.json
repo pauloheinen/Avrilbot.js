@@ -10,6 +10,7 @@
     "ffmpeg-static": "^4.4.0",
     "node-opus": "^0.3.3",
     "simple-youtube-api": "^5.2.1",
+    "spnk-core": "^1.2.3",
     "ytdl-core": "^4.9.1",
     "ytpl": "^2.2.3"
   }

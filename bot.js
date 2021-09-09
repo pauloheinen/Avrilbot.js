@@ -4,6 +4,7 @@ const YouTube = require('simple-youtube-api');
 const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
 const ytdl = require('ytdl-core');
 const fs = require('fs');
+const spnk = require('spnk-core').youtube;
 const downloader = require("@discord-player/downloader").Downloader;
 let radioON = false;
 const LOCAL = './Music/';
@@ -105,31 +106,28 @@ function verifystorage(videos){
                     console.log("Already has: " + videos[i].title + ".mp3");
                     break;
                 }
-                if (j === files.length-1){
+                else if (j === files.length-1){
                     console.log("Downloading: "+videos[i].title+".mp3");
+                    const stream = downloader.download(videos[i].url);
+                    stream.pipe(fs.createWriteStream(LOCAL + videos[i].title + ".mp3"));
                 }
             }
         }
     }));
 }
 
-
 async function stream(connection, videos, index){
-    fs.readdir(LOCAL, ((err, files) => {
-        if (index < videos.length) {
-
-            let dispatcher = await connection.playStream(LOCAL + videos[index].title + ".mp3");
-            await dispatcher.on('error', e => {
-                console.log(e);
-            });
-            await dispatcher.on('end', () => {
-                dispatcher = undefined;
-                console.log('Now playing:' + videos[index].title);
-                stream(connection, videos, index += 1);
-            })
-
-        }
-    }));
+    if (index < videos.length) {
+        let dispatcher = await connection.playStream(LOCAL + videos[index].title + ".mp3");
+        await dispatcher.on('error', e => {
+            console.log(e);
+        });
+        await dispatcher.on('end', () => {
+            dispatcher = undefined;
+            console.log('Now playing:' + videos[index].title);
+            stream(connection, videos, index += 1);
+        })
+    }
 }
 
 bot.login('ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw');
