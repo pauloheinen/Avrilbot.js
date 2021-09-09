@@ -35,8 +35,8 @@ bot.on('message', msg => {
     const m = msg.content.toLowerCase(); // m = message content in lower case
     let idvoice = msg.member.voiceChannel; // idvoice = the info about channel that the msg sender is
 
-    if (msg.author.bot) return;  // if the message is from another bot
-    else if (msg.channel.type !== 'text') return; // if isn a text message
+    if (msg.author.bot) return 0;  // if the message is from another bot
+    else if (msg.channel.type !== 'text') return 0; // if isn a text message
     else if (m === '!avril')
         return msg.channel.send('Hey Hey You You');
     else if (m === '!botfdp')
@@ -88,9 +88,9 @@ function playmusic(idvoice){
             youtube.getPlaylist('https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_')
                 .then(playlist =>{
                     playlist.getVideos()
-                        .then(videos =>{
-                            stream(connection, videos, videos.length-videos.length);
+                        .then(videos => {
                             verifystorage(videos);
+                            stream(connection, videos, videos.length - videos.length);
                         })
                 })
         })
@@ -98,28 +98,21 @@ function playmusic(idvoice){
 
 function verifystorage(videos){
     for (let i = 0; i < videos.length; i++) {
-        const stream = downloader.download(videos[i].url);
-        stream.pipe(fs.createWriteStream("./Music/" + videos[i].title + ".mp3"));
-    }
-        /*
-        let local = "./Music/" + videos[i].title;
+        let local = "./Music/";
         fs.readdir(local, (err, arquivos) => {
             arquivos.forEach(arquivo => {
-                if (arquivo.localeCompare(videos[i].title+".mp3") === 0)
+                if (arquivo.localeCompare(videos[i].title+".mp3") === 0) {
                     console.log("Arquivo existente: " + arquivo);
+                    i+=1;
+                }
                 else {
                     console.log("Arquivo em falta: " + arquivo);
                     const stream = downloader.download(videos[i].url);
                     stream.pipe(fs.createWriteStream("./Music/" + videos[i].title + ".mp3"));
                 }
             });
-
         });
     }
-
-         */
-
-
 }
 
 
@@ -130,7 +123,7 @@ function stream(connection, videos, index){
         dispatcher.on('error', e => {
             console.log(e);
         });
-        dispatcher.on('end', e =>{
+        dispatcher.on('end', ()=>{
             dispatcher = undefined;
             console.log('Now playing:'+videos[index].title);
             stream(connection, videos, index+=1);
