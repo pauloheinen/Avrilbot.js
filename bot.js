@@ -5,6 +5,7 @@ const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
 const ytdl = require('ytdl-core');
 const fs = require('fs');
 const downloader = require("@discord-player/downloader").Downloader;
+let radioON = false;
 
 /*
 https://www.npmjs.com/package/discord-music-app
@@ -44,7 +45,10 @@ bot.on('message', msg => {
         return msg.channel.send('gata gorda 🙀');
     else if (m === '!justdoit' || m === '!jdi' || m === '!justvitao' || m === 't'){
         if (idvoice != null) { // if is in a voice channel
-            return msg.channel.send("Let's do it!").then(playmusic(idvoice));
+            if (radioON === false){
+                radioON = true;
+                return msg.channel.send("Let's do it!").then(playmusic(idvoice));
+            }
         }
         else
             return msg.channel.send("Não ta no canal de voz né pô, faz certo, faz direito!");
@@ -85,23 +89,54 @@ function playmusic(idvoice){
                 .then(playlist =>{
                     playlist.getVideos()
                         .then(videos =>{
-                            for (let i = 0; i < videos.length; i++) {
-                                console.log("MUSICA[" + i + "]   URL =>>> " + videos[i].url);
-                                /* here i need to play a song */
-                                const stream = downloader.download(videos[5].url);
-                                stream.pipe(fs.createWriteStream("./song.mp3"));
-                                let dispatcher = connection.playStream("./song.mp3");
-                                dispatcher.on('error', e => {
-                                    console.log(e);
-                                });
-                                dispatcher.on('end', e =>{
-                                    dispatcher = undefined;
-                                    console.log('End of audio file');
-                                })
-                            }
+                            stream(connection, videos, videos.length-videos.length);
+                            verifystorage(videos);
                         })
                 })
         })
+}
+
+function verifystorage(videos){
+    for (let i = 0; i < videos.length; i++) {
+        const stream = downloader.download(videos[i].url);
+        stream.pipe(fs.createWriteStream("./Music/" + videos[i].title + ".mp3"));
+    }
+        /*
+        let local = "./Music/" + videos[i].title;
+        fs.readdir(local, (err, arquivos) => {
+            arquivos.forEach(arquivo => {
+                if (arquivo.localeCompare(videos[i].title+".mp3") === 0)
+                    console.log("Arquivo existente: " + arquivo);
+                else {
+                    console.log("Arquivo em falta: " + arquivo);
+                    const stream = downloader.download(videos[i].url);
+                    stream.pipe(fs.createWriteStream("./Music/" + videos[i].title + ".mp3"));
+                }
+            });
+
+        });
+    }
+
+         */
+
+
+}
+
+
+function stream(connection, videos, index){
+    if (index < videos.length){
+
+        let dispatcher = connection.playStream("./Music/"+videos[index].title+".mp3");
+        dispatcher.on('error', e => {
+            console.log(e);
+        });
+        dispatcher.on('end', e =>{
+            dispatcher = undefined;
+            console.log('Now playing:'+videos[index].title);
+            stream(connection, videos, index+=1);
+        })
+
+    }
 }
 
 bot.login('ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw');
