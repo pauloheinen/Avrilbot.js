@@ -1,29 +1,26 @@
+/* APIS */
 const {Client} = require('discord.js');
 const bot = new Client();
+const http = require('http');
 const YouTube = require('simple-youtube-api');
 const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
+
+/* LIBS */
 const ytdl = require('ytdl-core');
 const fs = require('fs');
-const spnk = require('spnk-core').youtube;
 const downloader = require("@discord-player/downloader").Downloader;
-let radioON = false;
+
+/* BOT CONSTANTS */
 const LOCAL = './Music/';
+let radioON = false;
 
-/*
-https://www.npmjs.com/package/discord-music-app
-https://www.npmjs.com/package/youtu-playlist-downloader
-https://www.npmjs.com/package/youtube-playlist-dl
-https://www.npmjs.com/package/@twometer/blaze
- */
-
-
-const http = require('http');
-
+/* Connection */
 http.createServer(function (req, res) {
     res.write("I'm alive");
     res.end();
 }).listen(8000);
 
+/* Bot startup */
 bot.on('ready', () => { // when the bot is on
     console.log('Bot Alive!')
     setInterval(() => bot.user.setActivity(`Avril Lavigne`, {
@@ -32,7 +29,7 @@ bot.on('ready', () => { // when the bot is on
     }), 5000)
 })
 
-/* Start of message events */
+/* Message event */
 bot.on('message', msg => {
     const m = msg.content.toLowerCase(); // m = message content in lower case
     let idvoice = msg.member.voiceChannel; // idvoice = the info about channel that the msg sender is
@@ -59,10 +56,10 @@ bot.on('message', msg => {
         return msg.channel.send('!avril\n!botfdp\n!gata\n!justdoit or !jdi\n!justvitao\n😘😘😜\n');
 
 });
-/* end of message events */
 
 
-/* start of voice state event */
+
+/* Voice State event */
 bot.on("voiceStateUpdate", (oldMember, newMember) => {
     if (newMember.voiceChannelID === '883096070857556009') { // if some member enters in voice channel with that id
         newMember.voiceChannel.join().then(connection => {
@@ -81,9 +78,9 @@ bot.on("voiceStateUpdate", (oldMember, newMember) => {
 
     }
 })
-/* end of voice state event */
 
 
+/* Music bot */
 function playmusic(idvoice){
     idvoice.join()
         .then(connection =>{
@@ -99,16 +96,16 @@ function playmusic(idvoice){
 }
 
 function verifystorage(videos){
-    fs.readdir(LOCAL, ((err, files) => { // where to search for
+    fs.readdir(LOCAL, (async (err, files) => { // where to search for
         for (let i = 0; i < videos.length; i++) { // array of youtube files
             for (let j = 0; j < files.length; j++) { // array of local files
-                if (videos[i].title+".mp3" === files[j]) {
+                if (videos[i].title + ".mp3" === files[j]) {
                     console.log("Already has: " + videos[i].title + ".mp3");
                     break;
-                }
-                else if (j === files.length-1){
-                    console.log("Downloading: "+videos[i].title+".mp3");
+                } else if (j === files.length - 1) {
+                    console.log("Downloading: " + videos[i].title + ".mp3");
                     const stream = downloader.download(videos[i].url);
+                    await new Promise(r => setTimeout(r, 4000));
                     stream.pipe(fs.createWriteStream(LOCAL + videos[i].title + ".mp3"));
                 }
             }
@@ -124,7 +121,7 @@ async function stream(connection, videos, index){
         });
         await dispatcher.on('end', () => {
             dispatcher = undefined;
-            console.log('Now playing:' + videos[index].title);
+            console.log('Now playing: ' + videos[index].title);
             stream(connection, videos, index += 1);
         })
     }
