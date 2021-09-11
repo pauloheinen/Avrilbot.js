@@ -3,7 +3,7 @@ const {Client} = require('discord.js');
 const bot = new Client();
 const http = require('http');
 const YouTube = require('simple-youtube-api');
-const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
+const youtube = new YouTube('[removed] (youtube token)');
 
 /* LIBS */
 const fs = require('fs');
@@ -130,4 +130,4 @@ async function beta(videos, idvoice, index){
         playmusic(idvoice);
 }
 
-bot.login('ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw');
+bot.login('[removed] (disc token)');
