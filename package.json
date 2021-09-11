@@ -1,5 +1,9 @@
 {
-  "start": "node index",
+  "start": "node bot.js",
+  "engines": {
+    "npm": "7.15.1",
+    "node": "16.3.0"
+  },
   "dependencies": {
     "@discord-player/downloader": "^3.0.1",
     "discord-youtube-api": "^0.1.0",
