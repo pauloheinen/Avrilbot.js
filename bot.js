@@ -45,7 +45,7 @@ bot.on('message', msg => {
     else if (m === '!gata')
         return msg.channel.send('gata gorda 🙀');
     else if (m === '!justdoit' || m === '!jdi' || m === '!justvitao' || m === 't'){
-        if (idvoice != null) { // if is in a voice channel
+        if (msg.member.voiceChannel != null) { // if is in a voice channel
             if (radioON === false)
                 return msg.channel.send("Let's do it!").then(playmusic(msg.member.voiceChannel));
             else
@@ -130,7 +130,7 @@ async function beta(videos, idvoice, index){
                 const stream = downloader.download(videos[index + 1].url);
                 stream.pipe(fs.createWriteStream(LOCAL + videos[index].title + ".mp3"));
                 await new Promise(r => setTimeout(r, 4500));
-                beta(videos, idvoice, index);
+                await beta(videos, idvoice, index);
             }
         }));
     }
