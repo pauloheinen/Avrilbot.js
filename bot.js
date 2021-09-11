@@ -6,7 +6,6 @@ const YouTube = require('simple-youtube-api');
 const youtube = new YouTube('AIzaSyBNkXUzDkHvYSW5lKZE_vXqMY2ifcj22TU');
 
 /* LIBS */
-const ytdl = require('ytdl-core');
 const fs = require('fs');
 const downloader = require("@discord-player/downloader").Downloader;
 
@@ -17,6 +16,7 @@ const playlists = ['https://www.youtube.com/playlist?list=PLED03B2E1FC47994B',
     'https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_']
 const random = Math.floor(Math.random() * playlists.length);
 let radioON = false;
+let avrilcount = 0;
 
 /* Connection */
 http.createServer(function (req, res) {
@@ -35,7 +35,6 @@ bot.on('ready', () => { // when the bot is on
 /* Message event */
 bot.on('message', msg => {
     let m = msg.content.toLowerCase(); // m = message content in lower case
-    let idvoice = msg.member.voiceChannel; // idvoice = the info about channel that the msg sender is
 
     if (msg.author.bot) return 0;  // if the message is from another bot
     else if (msg.channel.type !== 'text') return 0; // if isn a text message
@@ -47,34 +46,47 @@ bot.on('message', msg => {
         return msg.channel.send('gata gorda 🙀');
     else if (m === '!justdoit' || m === '!jdi' || m === '!justvitao' || m === 't'){
         if (idvoice != null) { // if is in a voice channel
-            if (radioON === false){
-                return msg.channel.send("Let's do it!").then(playmusic(idvoice));
-            }
+            if (radioON === false)
+                return msg.channel.send("Let's do it!").then(playmusic(msg.member.voiceChannel));
             else
                 return msg.channel.send("I'm already playing something!");
         }
         else
             return msg.channel.send("Não ta no canal de voz né pô, faz certo, faz direito!");
     }
+    else if (m === '!sk'){
+        if (radioON === true)
+            return playmusic(msg.member.voiceChannel);
+        else
+            return msg.channel.send("Im not even playing right now!");
+    }
     else if (m === '!comandos')
-        return msg.channel.send('!Avril\n!botfdp\n!gata\n!justvitao\n!jdi or !justdoit\n!comandos\n😘😘😜😎😎\n');
+        return msg.channel.send('!Avril\n!botfdp\n!gata\n!justvitao\n!jdi or !justdoit\n!sk\n!comandos\n😘😘😜😎😎\n');
 
 });
 
 
 
 /* Voice State event */
-bot.on("voiceStateUpdate", (oldMember, newMember) => {
+bot.on("voiceStateUpdate", async (oldMember, newMember) => {
+    console.log("Listening: " + avrilcount);
     if (newMember.voiceChannelID === '883096070857556009') { // if some member enters in voice channel with that id
-        playmusic(newMember.voiceChannel);
-        return console.log(newMember.user.username+" Entrou no canal Avril 24/7")
-
+        avrilcount = avrilcount +1;
+        if (avrilcount === 1) {
+            console.log(newMember.user.username + " Entrou no canal Avril 24/7");
+            return newMember.voiceChannel.join().then(playmusic(newMember.voiceChannel));
+        }
     }
-    if (oldMember.voiceChannelID === '883096070857556009') // if some member leave that same voice channel
-        console.log(oldMember.user.username+" Saiu do canal Avril 24/7");
+    if (oldMember.voiceChannelID === '883096070857556009') { // if some member leave that same voice channel
+        console.log(oldMember.user.username + " Saiu do canal Avril 24/7");
+        if (avrilcount-1 < 0)
+            avrilcount = 0;
+        else
+            avrilcount = avrilcount - 1;
+    }
 
-    if (newMember.nickname === 'AvrilRadio'){
-        newMember.voiceChannel.connection.on('error', e =>{
+    if (newMember.nickname === 'AvrilRadio') {
+        newMember.voiceChannel.connection.on('error', e => {
             console.error(e);
         })
 
@@ -84,42 +96,46 @@ bot.on("voiceStateUpdate", (oldMember, newMember) => {
 
 /* Music bot */
 function playmusic(idvoice){
-    idvoice.join()
-        .then(connection =>{
-            youtube.getPlaylist(playlists[random])
-                .then(playlist =>{
-                    playlist.getVideos()
-                        .then(videos => {
-                            beta(videos, connection, videos.length-videos.length);
-                            //verifystorage(videos);
-                            //stream(connection, videos, videos.length - videos.length);
-                        })
-                })
-        })
+    idvoice.join().then( () =>{
+            youtube.getPlaylist(playlists[random]).then(playlist =>{
+                    playlist.getVideos().then(videos => {
+                            beta(videos, idvoice, videos.length - videos.length);
+                        });
+                });
+        });
 }
 
 
-function beta(videos, connection, index){
-    fs.readdir(LOCAL, (async (err, files) => { // where to search for
-        if (files.includes(videos[index].title + ".mp3") === true){
-            console.log("Already has: " + videos[index].title + ".mp3");
-            console.log('Now playing: ' + videos[index].title);
-            radioON = true;
-            let dispatcher = await connection.playFile(LOCAL+videos[index].title+".mp3");
-            await dispatcher.on('end', () => {
-                radioON = false;
-                dispatcher = undefined;
-                beta(videos, connection, index += 1);
-            })
-        }
-        else{
-            console.log("Downloading: " + videos[index].title + ".mp3");
-            const stream = downloader.download(videos[index].url);
-            await new Promise(r => setTimeout(r, 5000));
-            stream.pipe(fs.createWriteStream(LOCAL + videos[index].title + ".mp3"));
-            beta(videos, connection, index);
-        }
-    }));
+
+
+async function beta(videos, idvoice, index){
+    if (index !== videos.length) {
+        fs.readdir(LOCAL, (async (err, files) => { // where to search for
+            if (files.includes(videos[index].title + ".mp3") === true) {
+                console.log('Now playing: ' + videos[index].title);
+                radioON = true;
+                let dispatcher = await idvoice.connection.playFile(LOCAL + videos[index].title + ".mp3");
+                if (index + 1 !== videos.length) {
+                    console.log("Downloading: " + videos[index + 1].title + ".mp3");
+                    const stream = downloader.download(videos[index + 1].url);
+                    stream.pipe(fs.createWriteStream(LOCAL + videos[index + 1].title + ".mp3"));
+                }
+                await dispatcher.on('end', () => {
+                    radioON = false;
+                    dispatcher = undefined;
+                    beta(videos, idvoice, index += 1);
+                })
+            } else {
+                console.log("Downloading: " + videos[index].title + ".mp3");
+                const stream = downloader.download(videos[index + 1].url);
+                stream.pipe(fs.createWriteStream(LOCAL + videos[index].title + ".mp3"));
+                await new Promise(r => setTimeout(r, 4500));
+                beta(videos, idvoice, index);
+            }
+        }));
+    }
+    else
+        playmusic(idvoice);
 }
 
 function verifystorage(videos){
