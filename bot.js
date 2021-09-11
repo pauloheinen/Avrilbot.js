@@ -68,14 +68,19 @@ bot.on('message', msg => {
 
 
 /* Voice State event */
-bot.on("voiceStateUpdate", async (oldMember, newMember) => {
-    console.log("Listening: " + avrilcount);
-    if (newMember.voiceChannelID === '883096070857556009') { // if some member enters in voice channel with that id
-        avrilcount = avrilcount +1;
-        if (avrilcount === 1) {
-            console.log(newMember.user.username + " Entrou no canal Avril 24/7");
-            return newMember.voiceChannel.join().then(playmusic(newMember.voiceChannel));
+bot.on("voiceStateUpdate", (oldMember, newMember) => {
+
+    if (newMember.user.id !== '883118424610439189') { // if wasnt the bot that got in
+        if (newMember.voiceChannelID === '883096070857556009') { // if some member enters in voice channel with that id
+
+
+            avrilcount = avrilcount + 1;
+            if (avrilcount === 1) {
+                console.log(newMember.user.username + " Entrou no canal Avril 24/7");
+                return playmusic(newMember.voiceChannel);
+            }
         }
+
     }
     if (oldMember.voiceChannelID === '883096070857556009') { // if some member leave that same voice channel
         console.log(oldMember.user.username + " Saiu do canal Avril 24/7");
@@ -84,18 +89,14 @@ bot.on("voiceStateUpdate", async (oldMember, newMember) => {
         else
             avrilcount = avrilcount - 1;
     }
-
-    if (newMember.nickname === 'AvrilRadio') {
-        newMember.voiceChannel.connection.on('error', e => {
-            console.error(e);
-        })
-    }
+    console.log("Listening: " + avrilcount);
 })
 
 
 /* Music bot */
 function playmusic(idvoice){
-    idvoice.join().then( () =>{
+    if (!radioON)
+        idvoice.join().then( () =>{
             youtube.getPlaylist(playlists[random]).then(playlist =>{
                     playlist.getVideos().then(videos => {
                             beta(videos, idvoice, videos.length - videos.length);
