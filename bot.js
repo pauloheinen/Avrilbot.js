@@ -83,7 +83,6 @@ bot.on("voiceStateUpdate", (oldMember, newMember) => {
         else
             avrilcount = avrilcount - 1;
     }
-    console.log(oldMember.user.username + " saiu do canal " + oldMember.voiceChannel.name);
     console.log("Listening: " + avrilcount);
 })
 
