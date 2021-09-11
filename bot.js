@@ -69,26 +69,21 @@ bot.on('message', msg => {
 
 /* Voice State event */
 bot.on("voiceStateUpdate", (oldMember, newMember) => {
-
+    console.log(newMember.user.username + " Entrou no canal " + newMember.voiceChannel.name);
     if (newMember.user.id !== '883118424610439189') { // if wasnt the bot that got in
         if (newMember.voiceChannelID === '883096070857556009') { // if some member enters in voice channel with that id
-
-
             avrilcount = avrilcount + 1;
-            if (avrilcount === 1) {
-                console.log(newMember.user.username + " Entrou no canal Avril 24/7");
+            if (avrilcount === 1)
                 return playmusic(newMember.voiceChannel);
-            }
         }
-
     }
     if (oldMember.voiceChannelID === '883096070857556009') { // if some member leave that same voice channel
-        console.log(oldMember.user.username + " Saiu do canal Avril 24/7");
         if (avrilcount-1 < 0)
             avrilcount = 0;
         else
             avrilcount = avrilcount - 1;
     }
+    console.log(oldMember.user.username + " saiu do canal " + oldMember.voiceChannel.name);
     console.log("Listening: " + avrilcount);
 })
 
@@ -109,14 +104,14 @@ function playmusic(idvoice){
 async function beta(videos, idvoice, index){
     if (index !== videos.length) { // if isnt the end of playlist
         fs.readdir(LOCAL, (async (err, files) => { // where to search for
-            if (files.includes(videos[index].title + ".mp3") === true) { // search in a folder for the file
+            if (files.includes(videos[index].id + ".mp3") === true) { // search in a folder for the file
                 console.log('Now playing: ' + videos[index].title);
                 radioON = true;
-                let dispatcher = await idvoice.connection.playFile(LOCAL + videos[index].title + ".mp3"); // play the music
+                let dispatcher = await idvoice.connection.playFile(LOCAL + videos[index].id + ".mp3"); // play the music
                 if (index + 1 !== videos.length) { // if theres more in the playlist
                     console.log("Downloading: " + videos[index + 1].title + ".mp3");
                     const stream = downloader.download(videos[index + 1].url); // it downloads the next file while already streams one
-                    stream.pipe(fs.createWriteStream(LOCAL + videos[index + 1].title + ".mp3"));
+                    stream.pipe(fs.createWriteStream(LOCAL + videos[index + 1].id + ".mp3"));
                 }
                 await dispatcher.on('end', () => {
                     radioON = false;
@@ -126,7 +121,7 @@ async function beta(videos, idvoice, index){
             } else { // if the actual file for some reason didnt downloaded
                 console.log("Downloading: " + videos[index].title + ".mp3");
                 const stream = downloader.download(videos[index + 1].url);
-                stream.pipe(fs.createWriteStream(LOCAL + videos[index].title + ".mp3"));
+                stream.pipe(fs.createWriteStream(LOCAL + videos[index].id + ".mp3"));
                 await new Promise(r => setTimeout(r, 4500));
                 await beta(videos, idvoice, index); // download the file and recursive call to play again
             }
@@ -134,39 +129,6 @@ async function beta(videos, idvoice, index){
     }
     else
         playmusic(idvoice);
-}
-
-function verifystorage(videos){
-    fs.readdir(LOCAL, (async (err, files) => { // where to search for
-        for (let i = 0; i < videos.length; i++) { // array of youtube files
-            for (let j = 0; j < files.length; j++) { // array of local files
-                if (videos[i].title + ".mp3" === files[j]) {
-                    console.log("Already has: " + videos[i].title + ".mp3");
-                    break;
-                }
-                else if (j === files.length - 1) {
-                    console.log("Downloading: " + videos[i].title + ".mp3");
-                    const stream = downloader.download(videos[i].url);
-                    await new Promise(r => setTimeout(r, 4000));
-                    stream.pipe(fs.createWriteStream(LOCAL + videos[i].title + ".mp3"));
-                }
-            }
-        }
-    }));
-}
-
-async function stream(connection, videos, index){
-    if (index < videos.length) {
-        let dispatcher = await connection.playStream(LOCAL + videos[index].title + ".mp3");
-        await dispatcher.on('error', e => {
-            console.log(e);
-        });
-        await dispatcher.on('end', () => {
-            dispatcher = undefined;
-            console.log('Now playing: ' + videos[index].title);
-            stream(connection, videos, index += 1);
-        })
-    }
 }
 
 bot.login('ODgzMTE4NDI0NjEwNDM5MTg5.YTFSHw.DqR4UNGr3_trt3chvRTahznheCw');
