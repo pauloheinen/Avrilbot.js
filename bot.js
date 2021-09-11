@@ -10,13 +10,13 @@ const fs = require('fs');
 const downloader = require("@discord-player/downloader").Downloader;
 
 /* BOT CONSTANTS */
-const LOCAL = './Music/';
+const LOCAL = './Music/'; // where to save files
 const playlists = ['https://www.youtube.com/playlist?list=PLED03B2E1FC47994B',
     'https://www.youtube.com/playlist?list=PLOfcxmVI3iUASS5tHevLxLfGq3lZJYrNh',
     'https://www.youtube.com/playlist?list=PLH69otCpA08EF1LACrijzjkEu9NzCvEr_']
-const random = Math.floor(Math.random() * playlists.length);
-let radioON = false;
-let avrilcount = 0;
+const random = Math.floor(Math.random() * playlists.length); // to get a random playlist
+let radioON = false; // if the radio is ON
+let avrilcount = 0; // quantity of listeners
 
 /* Connection */
 http.createServer(function (req, res) {
@@ -56,7 +56,7 @@ bot.on('message', msg => {
     }
     else if (m === '!sk'){
         if (radioON === true)
-            return playmusic(msg.member.voiceChannel);
+            return playmusic(msg.member.voiceChannel); // call again cause it should be a non-stop radio
         else
             return msg.channel.send("Im not even playing right now!");
     }
@@ -89,7 +89,6 @@ bot.on("voiceStateUpdate", async (oldMember, newMember) => {
         newMember.voiceChannel.connection.on('error', e => {
             console.error(e);
         })
-
     }
 })
 
@@ -106,31 +105,29 @@ function playmusic(idvoice){
 }
 
 
-
-
 async function beta(videos, idvoice, index){
-    if (index !== videos.length) {
+    if (index !== videos.length) { // if isnt the end of playlist
         fs.readdir(LOCAL, (async (err, files) => { // where to search for
-            if (files.includes(videos[index].title + ".mp3") === true) {
+            if (files.includes(videos[index].title + ".mp3") === true) { // search in a folder for the file
                 console.log('Now playing: ' + videos[index].title);
                 radioON = true;
-                let dispatcher = await idvoice.connection.playFile(LOCAL + videos[index].title + ".mp3");
-                if (index + 1 !== videos.length) {
+                let dispatcher = await idvoice.connection.playFile(LOCAL + videos[index].title + ".mp3"); // play the music
+                if (index + 1 !== videos.length) { // if theres more in the playlist
                     console.log("Downloading: " + videos[index + 1].title + ".mp3");
-                    const stream = downloader.download(videos[index + 1].url);
+                    const stream = downloader.download(videos[index + 1].url); // it downloads the next file while already streams one
                     stream.pipe(fs.createWriteStream(LOCAL + videos[index + 1].title + ".mp3"));
                 }
                 await dispatcher.on('end', () => {
                     radioON = false;
                     dispatcher = undefined;
-                    beta(videos, idvoice, index += 1);
+                    beta(videos, idvoice, index += 1); // recursive call to next music
                 })
-            } else {
+            } else { // if the actual file for some reason didnt downloaded
                 console.log("Downloading: " + videos[index].title + ".mp3");
                 const stream = downloader.download(videos[index + 1].url);
                 stream.pipe(fs.createWriteStream(LOCAL + videos[index].title + ".mp3"));
                 await new Promise(r => setTimeout(r, 4500));
-                await beta(videos, idvoice, index);
+                await beta(videos, idvoice, index); // download the file and recursive call to play again
             }
         }));
     }
@@ -145,7 +142,8 @@ function verifystorage(videos){
                 if (videos[i].title + ".mp3" === files[j]) {
                     console.log("Already has: " + videos[i].title + ".mp3");
                     break;
-                } else if (j === files.length - 1) {
+                }
+                else if (j === files.length - 1) {
                     console.log("Downloading: " + videos[i].title + ".mp3");
                     const stream = downloader.download(videos[i].url);
                     await new Promise(r => setTimeout(r, 4000));
